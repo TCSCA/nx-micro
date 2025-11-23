@@ -4,36 +4,31 @@ import { LOGGER_TOKEN } from 'libs/observability/src';
 import { Logger } from 'winston';
 import { timeout } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
-
-interface ServiceHealth {
-  status: string;
-  service: string;
-  timestamp?: string;
-  error?: string;
-}
+import { SERVICES, COMMANDS, TCP_CONFIG } from '../../config/constants';
+import { ServiceHealth, AllServicesHealth, ServiceResponse } from '../../interfaces/service-health.interface';
 
 @Injectable()
 export class GatewayService {
   constructor(
-    @Inject('SERVICE1') private readonly service1Client: ClientProxy,
-    @Inject('SERVICE2') private readonly service2Client: ClientProxy,
+    @Inject(SERVICES.SERVICE1) private readonly service1Client: ClientProxy,
+    @Inject(SERVICES.SERVICE2) private readonly service2Client: ClientProxy,
     @Inject(LOGGER_TOKEN) private readonly logger: Logger,
   ) {
     this.logger.info('Gateway Service initialized with TCP clients');
   }
-  // saas
+
   private getClient(serviceName: string): ClientProxy {
     switch (serviceName) {
-      case 'service1':
+      case SERVICES.SERVICE1:
         return this.service1Client;
-      case 'service2':
+      case SERVICES.SERVICE2:
         return this.service2Client;
       default:
         throw new Error(`Service ${serviceName} not found`);
     }
   }
 
-  async sendCommand(serviceName: string, pattern: string, data?: any): Promise<any> {
+  async sendCommand(serviceName: string, pattern: string, data?: any): Promise<ServiceResponse> {
     const client = this.getClient(serviceName);
     const command = { cmd: pattern };
     const payload = data ?? {};
@@ -45,7 +40,7 @@ export class GatewayService {
       await client.connect();
 
       const response = await firstValueFrom(
-        client.send(command, payload).pipe(timeout(5000))
+        client.send(command, payload).pipe(timeout(TCP_CONFIG.TIMEOUT))
       );
 
       this.logger.info(`TCP response from ${serviceName}`, {
@@ -53,7 +48,11 @@ export class GatewayService {
         response,
       });
 
-      return response;
+      return {
+        success: true,
+        data: response,
+        timestamp: new Date().toISOString(),
+      };
     } catch (error) {
       this.logger.error(`Error sending TCP command to ${serviceName}`, {
         pattern,
@@ -61,17 +60,28 @@ export class GatewayService {
         error: error.message,
         errorDetails: error,
       });
-      throw error;
+
+      return {
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
     }
   }
 
   async getServiceHealth(serviceName: string): Promise<ServiceHealth> {
-    return this.sendCommand(serviceName, 'health');
+    const response = await this.sendCommand(serviceName, COMMANDS.HEALTH);
+
+    if (response.success) {
+      return response.data;
+    } else {
+      throw new Error(response.error);
+    }
   }
 
-  async getAllServicesHealth(): Promise<{ gateway: ServiceHealth; services: ServiceHealth[] }> {
+  async getAllServicesHealth(): Promise<AllServicesHealth> {
     const healthChecks = await Promise.allSettled(
-      ['service1', 'service2'].map(async (name) => {
+      Object.values(SERVICES).map(async (name) => {
         try {
           const health = await this.getServiceHealth(name);
           return { service: name, status: 'healthy', ...health };
@@ -93,11 +103,11 @@ export class GatewayService {
     };
   }
 
-  async callServiceHello(serviceName: string): Promise<any> {
-    return this.sendCommand(serviceName, 'hello');
+  async callServiceHello(serviceName: string): Promise<ServiceResponse> {
+    return this.sendCommand(serviceName, COMMANDS.HELLO);
   }
 
-  async callServiceError(serviceName: string): Promise<any> {
-    return this.sendCommand(serviceName, 'error');
+  async callServiceError(serviceName: string): Promise<ServiceResponse> {
+    return this.sendCommand(serviceName, COMMANDS.ERROR);
   }
 }

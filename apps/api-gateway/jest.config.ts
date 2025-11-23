@@ -1,5 +1,5 @@
 export default {
-  displayName: 'nx-microservices',
+  displayName: 'api-gateway',
   preset: '../jest.preset.js',
   testEnvironment: 'node',
   transform: {

@@ -5,23 +5,22 @@
 
 import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
-import { envs } from './app/config';
 import { RpcCustomExceptionFilter } from './common/exceptions/rpc-custom-exception.filter';
+import { envs } from './app/config';
 import { initObservability } from 'libs/observability/src/lib/observability';
 
 async function bootstrap() {
   // Initialize observability with the correct service name
   initObservability('service2');
-  const app = await NestFactory.create(AppModule);
 
-
-  const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix, {
-    exclude: [{
-      path: '',
-      method: RequestMethod.GET,
-    }]
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+    transport: Transport.TCP,
+    options: {
+      host: '127.0.0.1', // IPv4 localhost
+      port: envs.portService2,
+    },
   });
 
   app.useGlobalPipes(new ValidationPipe({
@@ -31,11 +30,8 @@ async function bootstrap() {
 
   app.useGlobalFilters(new RpcCustomExceptionFilter());
 
-  await app.listen(envs.portService2);
-
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${envs.portService2}/${globalPrefix}`
-  );
+  await app.listen();
+  Logger.log(`🚀 Service2 microservice is running on TCP port: ${envs.portService2}`);
 }
 
 bootstrap();

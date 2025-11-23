@@ -1,4 +1,5 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import { LOGGER_TOKEN } from 'libs/observability/src';
 import { Logger } from 'winston';
@@ -12,19 +13,15 @@ export class AppController {
     this.logger.info('Service2 Controller initialized');
   }
 
-  @Get()
+  @MessagePattern({ cmd: 'hello' })
   getData() {
-    this.logger.info('GET / endpoint called on Service2');
+    this.logger.info('HELLO message pattern called on Service2');
     return this.appService.getData();
   }
 
-  @Get('health')
+  @MessagePattern({ cmd: 'health' })
   getHealth() {
-    this.logger.info('GET /health endpoint called on Service2');
-    return {
-      status: 'ok',
-      service: 'service2',
-      timestamp: new Date().toISOString(),
-    };
+    this.logger.info('HEALTH message pattern called on Service2');
+    return this.appService.getHealth();
   }
 }

@@ -15,6 +15,15 @@ export class AppService {
     return 'Hello World!';
   }
 
+  getHealth(): object {
+    this.logger.info('Health check endpoint called');
+    return {
+      status: 'ok',
+      service: 'service1',
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   exampleError(): void {
     try {
       // Simulate an error

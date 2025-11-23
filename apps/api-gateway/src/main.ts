@@ -28,14 +28,16 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
-  // Note: RpcCustomExceptionFilter is typically used for microservices
-  // For HTTP API, you might want to use a regular ExceptionFilter instead
-  // app.useGlobalFilters(new RpcCustomExceptionFilter());
+  // Enable CORS for API Gateway
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
 
   await app.listen(envs.portGateway);
 
   Logger.log(
-    `🚀 Application is running on: http://localhost:${envs.portGateway}/${globalPrefix}`
+    `🚀 API Gateway is running on: http://localhost:${envs.portGateway}/${globalPrefix}`
   );
 }
 

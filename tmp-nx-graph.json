@@ -1,23 +1,23 @@
 {
   "graph": {
     "nodes": {
-      "nx-microservices-e2e": {
-        "name": "nx-microservices-e2e",
+      "api-gateway-e2e": {
+        "name": "api-gateway-e2e",
         "type": "e2e",
         "data": {
-          "root": "apps/nx-microservices-e2e",
+          "root": "apps/api-gateway-e2e",
           "targets": {
             "lint": {
               "cache": true,
               "options": {
-                "cwd": "apps/nx-microservices-e2e",
+                "cwd": "apps/api-gateway-e2e",
                 "command": "eslint ."
               },
               "inputs": [
                 "default",
                 "^default",
                 "{workspaceRoot}/eslint.config.mjs",
-                "{workspaceRoot}/apps/nx-microservices-e2e/eslint.config.mjs",
+                "{workspaceRoot}/apps/api-gateway-e2e/eslint.config.mjs",
                 "{workspaceRoot}/tools/eslint-rules/**/*",
                 {
                   "externalDependencies": [
@@ -52,31 +52,31 @@
                 "{workspaceRoot}/coverage/{e2eProjectRoot}"
               ],
               "options": {
-                "jestConfig": "apps/nx-microservices-e2e/jest.config.ts",
+                "jestConfig": "apps/api-gateway-e2e/jest.config.ts",
                 "passWithNoTests": true
               },
               "dependsOn": [
-                "nx-microservices:build",
-                "nx-microservices:serve"
+                "api-gateway:build",
+                "api-gateway:serve"
               ],
               "configurations": {},
               "parallelism": true
             }
           },
-          "name": "nx-microservices-e2e",
+          "name": "api-gateway-e2e",
           "$schema": "../../node_modules/nx/schemas/project-schema.json",
           "projectType": "application",
           "implicitDependencies": [
-            "nx-microservices"
+            "api-gateway"
           ],
           "tags": []
         }
       },
-      "nx-microservices": {
-        "name": "nx-microservices",
+      "api-gateway": {
+        "name": "api-gateway",
         "type": "app",
         "data": {
-          "root": "apps/nx-microservices",
+          "root": "apps/api-gateway",
           "projectType": "application",
           "metadata": {},
           "targets": {
@@ -95,7 +95,7 @@
                 }
               ],
               "outputs": [
-                "{workspaceRoot}/dist\\apps\\nx-microservices"
+                "{workspaceRoot}/dist\\apps\\api-gateway"
               ],
               "metadata": {
                 "technologies": [
@@ -116,7 +116,7 @@
               },
               "executor": "nx:run-commands",
               "options": {
-                "cwd": "apps/nx-microservices",
+                "cwd": "apps/api-gateway",
                 "args": [
                   "--node-env=production"
                 ],
@@ -139,15 +139,15 @@
                 "build"
               ],
               "options": {
-                "buildTarget": "nx-microservices:build",
+                "buildTarget": "api-gateway:build",
                 "runBuildTargetDependencies": false
               },
               "configurations": {
                 "development": {
-                  "buildTarget": "nx-microservices:build:development"
+                  "buildTarget": "api-gateway:build:development"
                 },
                 "production": {
-                  "buildTarget": "nx-microservices:build:production"
+                  "buildTarget": "api-gateway:build:production"
                 }
               },
               "parallelism": true
@@ -155,7 +155,7 @@
             "preview": {
               "continuous": true,
               "options": {
-                "cwd": "apps/nx-microservices",
+                "cwd": "apps/api-gateway",
                 "args": [
                   "--node-env=production"
                 ],
@@ -211,7 +211,7 @@
               ],
               "executor": "nx:run-commands",
               "options": {
-                "command": "pnpm exec nx watch --projects nx-microservices --includeDependentProjects -- pnpm exec nx build-deps nx-microservices"
+                "command": "pnpm exec nx watch --projects api-gateway --includeDependentProjects -- pnpm exec nx build-deps api-gateway"
               },
               "configurations": {},
               "parallelism": true
@@ -219,14 +219,14 @@
             "lint": {
               "cache": true,
               "options": {
-                "cwd": "apps/nx-microservices",
+                "cwd": "apps/api-gateway",
                 "command": "eslint ."
               },
               "inputs": [
                 "default",
                 "^default",
                 "{workspaceRoot}/eslint.config.mjs",
-                "{workspaceRoot}/apps/nx-microservices/eslint.config.mjs",
+                "{workspaceRoot}/apps/api-gateway/eslint.config.mjs",
                 "{workspaceRoot}/tools/eslint-rules/**/*",
                 {
                   "externalDependencies": [
@@ -282,11 +282,11 @@
                 }
               ],
               "outputs": [
-                "{workspaceRoot}\\coverage\\apps\\nx-microservices"
+                "{workspaceRoot}\\coverage\\apps\\api-gateway"
               ],
               "executor": "nx:run-commands",
               "options": {
-                "cwd": "apps/nx-microservices",
+                "cwd": "apps/api-gateway",
                 "env": {
                   "TS_NODE_COMPILER_OPTIONS": "{\"moduleResolution\":\"node10\",\"module\":\"commonjs\",\"customConditions\":null}"
                 },
@@ -303,8 +303,8 @@
               "cache": true,
               "executor": "@nx/js:prune-lockfile",
               "outputs": [
-                "{workspaceRoot}/dist/apps/nx-microservices/package.json",
-                "{workspaceRoot}/dist/apps/nx-microservices/pnpm-lock.yaml"
+                "{workspaceRoot}/dist/apps/api-gateway/package.json",
+                "{workspaceRoot}/dist/apps/api-gateway/pnpm-lock.yaml"
               ],
               "options": {
                 "buildTarget": "build"
@@ -318,7 +318,7 @@
               ],
               "cache": true,
               "outputs": [
-                "{workspaceRoot}/dist/apps/nx-microservices/workspace_modules"
+                "{workspaceRoot}/dist/apps/api-gateway/workspace_modules"
               ],
               "executor": "@nx/js:copy-workspace-modules",
               "options": {
@@ -338,9 +338,9 @@
               "parallelism": true
             }
           },
-          "name": "nx-microservices",
+          "name": "api-gateway",
           "$schema": "../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "apps/nx-microservices/src",
+          "sourceRoot": "apps/api-gateway/src",
           "tags": [],
           "implicitDependencies": []
         }
@@ -1129,14 +1129,14 @@
       }
     },
     "dependencies": {
-      "nx-microservices-e2e": [
+      "api-gateway-e2e": [
         {
-          "source": "nx-microservices-e2e",
-          "target": "nx-microservices",
+          "source": "api-gateway-e2e",
+          "target": "api-gateway",
           "type": "implicit"
         }
       ],
-      "nx-microservices": [],
+      "api-gateway": [],
       "service1-e2e": [
         {
           "source": "service1-e2e",

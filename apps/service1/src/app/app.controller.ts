@@ -9,12 +9,12 @@ export class AppController {
     private readonly appService: AppService,
     @Inject(LOGGER_TOKEN) private readonly logger: Logger,
   ) {
-    this.logger.info('AppController initialized');
+    this.logger.info('AppController initialized from service1');
   }
 
   @Get()
   getHello(): string {
-    this.logger.info('GET / endpoint called');
+    this.logger.info('GET / endpoint called from service1');
     return this.appService.getHello();
   }
 

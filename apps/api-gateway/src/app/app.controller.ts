@@ -21,10 +21,6 @@ export class AppController {
   @Get('health')
   getHealth() {
     this.logger.info('GET /health endpoint called on API Gateway');
-    return {
-      status: 'ok',
-      service: 'api-gateway',
-      timestamp: new Date().toISOString(),
-    };
+    return this.appService.getHealth();
   }
 }

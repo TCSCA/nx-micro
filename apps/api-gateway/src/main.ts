@@ -7,11 +7,11 @@ import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { envs } from './config/envs';
-import { ObservabilityModule } from 'libs/observability/src';
+import { initObservability } from 'libs/observability/src/lib/observability';
 
 async function bootstrap() {
   // Initialize observability with the correct service name
-  ObservabilityModule.forRoot('api-gateway');
+  initObservability('api-gateway');
 
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';

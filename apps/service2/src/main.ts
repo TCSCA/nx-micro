@@ -8,9 +8,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { envs } from './app/config';
 import { RpcCustomExceptionFilter } from './common/exceptions/rpc-custom-exception.filter';
-
+import { initObservability } from 'libs/observability/src/lib/observability';
 
 async function bootstrap() {
+  // Initialize observability with the correct service name
+  initObservability('service2');
   const app = await NestFactory.create(AppModule);
 
 

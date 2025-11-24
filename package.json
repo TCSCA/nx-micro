@@ -10,9 +10,15 @@
     "start:all": "nx run-many --target=serve --all",
     "start:service1": "nx serve service1",
     "start:service2": "nx serve service2",
-    "start:api-gateway": "nx serve api-gateway"
+    "start:api-gateway": "nx serve api-gateway",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:generate": "prisma generate",
+    "prisma:db:pull": "prisma db pull"
   },
   "private": true,
+  "prisma": {
+    "schema": "libs/prisma-client/prisma/schema.prisma"
+  },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.0",
@@ -33,6 +39,7 @@
     "@opentelemetry/sdk-node": "^0.208.0",
     "@opentelemetry/semantic-conventions": "^1.38.0",
     "@opentelemetry/winston-transport": "^0.19.0",
+    "@prisma/client": "^5.22.0",
     "@prisma/instrumentation": "^5.10.2",
     "@types/express": "^5.0.5",
     "axios": "^1.6.0",
@@ -62,13 +69,16 @@
     "@swc/helpers": "~0.5.11",
     "@types/jest": "^30.0.0",
     "@types/node": "20.19.9",
+    "dotenv": "^17.2.3",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "jest": "^30.0.2",
     "jest-environment-node": "^30.0.2",
     "jest-util": "^30.0.2",
+    "jsonc-eslint-parser": "^2.4.1",
     "nx": "22.0.2",
     "prettier": "^2.6.2",
+    "prisma": "^5.22.0",
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",

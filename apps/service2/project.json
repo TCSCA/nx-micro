@@ -65,6 +65,48 @@
       "options": {
         "passWithNoTests": true
       }
+    },
+    "prisma-generate": {
+      "command": "prisma generate",
+      "options": {
+        "cwd": "apps/service2"
+      }
+    },
+    "migrate-dev": {
+      "command": "prisma migrate dev",
+      "options": {
+        "cwd": "apps/service2"
+      }
+    },
+    "migrate-deploy": {
+      "command": "prisma migrate deploy",
+      "options": {
+        "cwd": "apps/service2"
+      }
+    },
+    "migrate-reset": {
+      "command": "prisma migrate reset",
+      "options": {
+        "cwd": "apps/service2"
+      }
+    },
+    "db-pull": {
+      "command": "prisma db pull",
+      "options": {
+        "cwd": "apps/service2"
+      }
+    },
+    "db-push": {
+      "command": "prisma db push",
+      "options": {
+        "cwd": "apps/service2"
+      }
+    },
+    "studio": {
+      "command": "prisma studio",
+      "options": {
+        "cwd": "apps/service2"
+      }
     }
   }
 }

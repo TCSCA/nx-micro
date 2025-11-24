@@ -13,6 +13,12 @@ export class AppController {
     this.logger.info('Service2 Controller initialized');
   }
 
+  @MessagePattern({ cmd: 'find_all_examples' })
+  findAllExamples() {
+    this.logger.info('FIND_ALL_EXAMPLES message pattern called');
+    return this.appService.findAllExamples();
+  }
+
   @MessagePattern({ cmd: 'hello' })
   getData() {
     this.logger.info('HELLO message pattern called on Service2');

@@ -11,8 +11,8 @@ import { PrismaInstrumentation } from '@prisma/instrumentation';
 
 // Configuración por defecto para entorno local
 // Docker expone el puerto 4318 en localhost, así que esto funcionará directo.
-const DEFAULT_TRACE_COLLECTOR_URL = 'http://localhost:4318/v1/traces';
-const DEFAULT_METRICS_COLLECTOR_URL = 'http://localhost:4318/v1/metrics';
+const DEFAULT_TRACE_COLLECTOR_URL = process.env['OTEL_EXPORTER_OTLP_TRACES_ENDPOINT'] || 'http://localhost:4318/v1/traces';
+const DEFAULT_METRICS_COLLECTOR_URL = process.env['OTEL_EXPORTER_OTLP_METRICS_ENDPOINT'] || 'http://localhost:4318/v1/metrics';
 
 export function initObservability(serviceName: string) {
   // Permitir sobreescribir la URL por variable de entorno (útil para prod)
@@ -45,9 +45,6 @@ export function initObservability(serviceName: string) {
       getNodeAutoInstrumentations({
         // Desactiva fs para reducir ruido si quieres
         '@opentelemetry/instrumentation-fs': { enabled: false },
-      }),
-      new PrismaInstrumentation({
-        middleware: { traces: true },
       }),
     ],
   });

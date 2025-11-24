@@ -42,3 +42,8 @@ Thumbs.db
 .nx/workspace-data
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
+
+# Prisma generated client
+libs/prisma-client/src/lib/generated/
+apps/service1/src/generated/
+apps/service2/src/generated/

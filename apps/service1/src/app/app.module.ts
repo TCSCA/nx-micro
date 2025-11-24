@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ObservabilityModule } from 'libs/observability/src';
+import { PrismaClientModule } from 'libs/prisma-client/src';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RpcCustomExceptionFilter } from '../common/exceptions/rpc-custom-exception.filter';
@@ -8,6 +9,7 @@ import { RpcCustomExceptionFilter } from '../common/exceptions/rpc-custom-except
 @Module({
   imports: [
     ObservabilityModule.forRoot('service1'),
+    PrismaClientModule,
   ],
   controllers: [AppController],
   providers: [

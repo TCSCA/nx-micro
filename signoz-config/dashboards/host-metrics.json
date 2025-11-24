@@ -1,0 +1,182 @@
+{
+  "id": "Linux Host Metrics",
+  "title": "Linux Host Metrics",
+  "tags": [],
+  "style": "dark",
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 0,
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "refresh": false,
+  "schemaVersion": 22,
+  "version": 3,
+  "links": [],
+  "panels": [
+    {
+      "title": "CPU Utilisation",
+      "type": "graph",
+      "transparent": true,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "id": 2,
+      "targets": [
+        {
+          "legendFormat": "user",
+          "expr": "sum by (host) (rate(namedprocess_namegroup_cpu_seconds_total{group=\"user\"}[2m]))",
+          "refId": "A",
+          "interval": "",
+          "step": 240
+        },
+        {
+          "expr": "sum by (host) (rate(namedprocess_namegroup_cpu_seconds_total{group=\"system\"}[2m]))",
+          "legendFormat": "system",
+          "refId": "B"
+        },
+        {
+          "expr": "sum by (host) (rate(namedprocess_namegroup_cpu_seconds_total{group=\"iowait\"}[2m]))",
+          "legendFormat": "iowait",
+          "refId": "C"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "percent",
+          "logBase": 1,
+          "show": true,
+          "min": "0",
+          "max": "1"
+        },
+        {
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "xaxis": {
+        "show": true
+      },
+      "stack": true
+    },
+    {
+      "title": "Memory Utilisation",
+      "type": "graph",
+      "transparent": true,
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "id": 4,
+      "targets": [
+        {
+          "legendFormat": "used",
+          "expr": "sum by (host) (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (host) (node_memory_MemAvailable_bytes)",
+          "legendFormat": "available",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "bytes",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "stack": true
+    },
+    {
+      "title": "Network Utilisation (bytes)",
+      "type": "graph",
+      "transparent": true,
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 24,
+        "h": 9
+      },
+      "id": 6,
+      "targets": [
+        {
+          "legendFormat": "received",
+          "expr": "sum by (host) (rate(node_network_receive_bytes_total[2m]))",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (host) (rate(node_network_transmit_bytes_total[2m]))",
+          "legendFormat": "transmitted",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {
+          "format": "bytes",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ]
+    }
+  ]
+}

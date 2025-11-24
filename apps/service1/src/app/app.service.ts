@@ -1,13 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { LOGGER_TOKEN } from 'libs/observability/src';
+import { PrismaService } from 'libs/prisma-client/src';
 import { Logger } from 'winston';
 
 @Injectable()
 export class AppService {
   constructor(
     @Inject(LOGGER_TOKEN) private readonly logger: Logger,
+    private readonly prisma: PrismaService,
   ) {
     this.logger.info('AppService initialized');
+  }
+
+  async createExample(name: string) {
+    this.logger.info(`Creating example with name: ${name}`);
+    return this.prisma.example.create({
+      data: {
+        name,
+      },
+    });
   }
 
   getHello(): string {

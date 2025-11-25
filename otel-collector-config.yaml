@@ -6,6 +6,15 @@ connectors:
       - name: deployment.environment
       - name: host.name
 receivers:
+  hostmetrics:
+    collection_interval: 60s
+    scrapers:
+      cpu:
+      load:
+      memory:
+      disk:
+      filesystem:
+      network:
   otlp:
     protocols:
       grpc:
@@ -135,6 +144,10 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [clickhouselogsexporter, signozmeter]
+    metrics/hostmetrics:
+      receivers: [hostmetrics]
+      processors: [resourcedetection]
+      exporters: [signozclickhousemetrics]
     metrics/meter:
       receivers: [signozmeter]
       processors: [batch/meter]

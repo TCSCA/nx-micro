@@ -1,0 +1,43 @@
+receivers:
+  hostmetrics:
+    collection_interval: 30s
+    scrapers:
+      cpu:
+      memory:
+      disk:
+      filesystem:
+      network:
+      load:
+      paging:
+      processes:
+  postgresql:
+    endpoint: "localhost:5432"
+    transport: tcp
+    username: postgres
+    password: "root"
+    databases:
+      - test_micro
+    tls:
+      insecure: true
+    collection_interval: 30s
+
+processors:
+  batch:
+    timeout: 10s
+  resourcedetection:
+    detectors: [env, system]
+    timeout: 2s
+    override: false
+
+exporters:
+  otlp:
+    endpoint: "localhost:4317"
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: [hostmetrics, postgresql]
+      processors: [resourcedetection, batch]
+      exporters: [otlp]

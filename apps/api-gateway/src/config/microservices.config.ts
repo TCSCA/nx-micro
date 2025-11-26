@@ -18,4 +18,12 @@ export const microservicesConfig = ClientsModule.register([
       port: TCP_CONFIG.PORTS.SERVICE2,
     },
   },
+  {
+    name: SERVICES.CSV_SERVICE,
+    transport: Transport.TCP,
+    options: {
+      host: TCP_CONFIG.HOST,
+      port: TCP_CONFIG.PORTS.CSV_PROCESSOR,
+    },
+  },
 ]);

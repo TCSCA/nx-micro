@@ -6,12 +6,14 @@ import { ObservabilityModule } from 'libs/observability/src';
 import { microservicesConfig } from '../config/microservices.config';
 import { providersConfig } from '../config/providers.config';
 
+import { CsvController } from './controllers/csv.controller';
+
 @Module({
   imports: [
     ObservabilityModule.forRoot('api-gateway'),
     microservicesConfig,
   ],
-  controllers: [AppController, GatewayController, HealthController],
+  controllers: [AppController, GatewayController, HealthController, CsvController],
   providers: providersConfig,
 })
 export class AppModule { }

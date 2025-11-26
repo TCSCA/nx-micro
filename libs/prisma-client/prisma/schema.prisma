@@ -14,3 +14,10 @@ model Example {
   updatedAt DateTime @updatedAt
   name      String
 }
+
+model Review {
+  id      Int      @id @default(autoincrement())
+  rating  Int
+  title   String
+  content String
+}

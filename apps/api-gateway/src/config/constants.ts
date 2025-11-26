@@ -1,6 +1,7 @@
 export const SERVICES = {
   SERVICE1: 'service1',
   SERVICE2: 'service2',
+  CSV_SERVICE: 'CSV_SERVICE',
 } as const;
 
 export const COMMANDS = {
@@ -14,6 +15,7 @@ export const TCP_CONFIG = {
   PORTS: {
     SERVICE1: parseInt(process.env.PORT_SERVICE1 || '3001'),
     SERVICE2: parseInt(process.env.PORT_SERVICE2 || '3002'),
+    CSV_PROCESSOR: parseInt(process.env.PORT_CSV_PROCESSOR || '3003'),
   },
   TIMEOUT: parseInt(process.env.TCP_TIMEOUT || '5000'),
 } as const;

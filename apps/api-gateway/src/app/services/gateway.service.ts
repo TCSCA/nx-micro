@@ -4,8 +4,8 @@ import { LOGGER_TOKEN } from '@nx-microservices/observability';
 import { Logger } from 'winston';
 import { timeout } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
-import { SERVICES, COMMANDS, TCP_CONFIG } from '../../config/constants';
-import { ServiceHealth, AllServicesHealth, ServiceResponse } from '../../interfaces/service-health.interface';
+import { SERVICES, TCP_CONFIG } from '../../config/constants';
+import { ServiceResponse } from '../../interfaces/service-health.interface';
 
 @Injectable()
 export class GatewayService {
@@ -69,45 +69,4 @@ export class GatewayService {
     }
   }
 
-  async getServiceHealth(serviceName: string): Promise<ServiceHealth> {
-    const response = await this.sendCommand(serviceName, COMMANDS.HEALTH);
-
-    if (response.success) {
-      return response.data;
-    } else {
-      throw new Error(response.error);
-    }
-  }
-
-  async getAllServicesHealth(): Promise<AllServicesHealth> {
-    const healthChecks = await Promise.allSettled(
-      Object.values(SERVICES).map(async (name) => {
-        try {
-          const health = await this.getServiceHealth(name);
-          return { service: name, status: 'healthy', ...health };
-        } catch (error) {
-          return { service: name, status: 'unhealthy', error: (error as Error).message };
-        }
-      })
-    );
-
-    return {
-      gateway: {
-        service: 'api-gateway',
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-      },
-      services: healthChecks.map(result =>
-        result.status === 'fulfilled' ? result.value : result.reason
-      ),
-    };
-  }
-
-  async callServiceHello(serviceName: string): Promise<ServiceResponse> {
-    return this.sendCommand(serviceName, COMMANDS.HELLO);
-  }
-
-  async callServiceError(serviceName: string): Promise<ServiceResponse> {
-    return this.sendCommand(serviceName, COMMANDS.ERROR);
-  }
 }

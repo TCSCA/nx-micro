@@ -7,7 +7,7 @@ export class CsvController {
     constructor(private readonly processCsvUseCase: ProcessCsvUseCase) { }
 
     @MessagePattern({ cmd: 'process_csv' })
-    async processCsv() {
-        return this.processCsvUseCase.execute();
+    async processCsv(data: { filePath: string }) {
+        return this.processCsvUseCase.execute(data.filePath);
     }
 }

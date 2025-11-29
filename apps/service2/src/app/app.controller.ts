@@ -19,15 +19,4 @@ export class AppController {
     return this.appService.findAllExamples();
   }
 
-  @MessagePattern({ cmd: 'hello' })
-  getData() {
-    this.logger.info('HELLO message pattern called on Service2');
-    return this.appService.getData();
-  }
-
-  @MessagePattern({ cmd: 'health' })
-  getHealth() {
-    this.logger.info('HEALTH message pattern called on Service2');
-    return this.appService.getHealth();
-  }
 }

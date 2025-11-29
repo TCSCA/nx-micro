@@ -6,6 +6,8 @@
 import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
+import { SwaggerModule } from '@nestjs/swagger';
+import { swaggerConfig } from './config/swagger.config';
 import { envs } from './config/envs';
 import { initObservability } from '@nx-microservices/observability';
 
@@ -14,6 +16,7 @@ async function bootstrap() {
   initObservability('api-gateway');
 
   const app = await NestFactory.create(AppModule);
+
   const globalPrefix = 'api';
 
   app.setGlobalPrefix(globalPrefix, {
@@ -22,6 +25,10 @@ async function bootstrap() {
       method: RequestMethod.GET,
     }]
   });
+
+  // Swagger Setup
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -36,9 +43,8 @@ async function bootstrap() {
 
   await app.listen(envs.portGateway);
 
-  Logger.log(
-    `🚀 API Gateway is running on: http://localhost:${envs.portGateway}/${globalPrefix}`
-  );
+  Logger.log(`🚀 API Gateway is running on: http://localhost:${envs.portGateway}/${globalPrefix}`);
+  Logger.log(`📝 Swagger is running on: http://localhost:${envs.portGateway}/${globalPrefix}/docs`);
 }
 
 bootstrap();

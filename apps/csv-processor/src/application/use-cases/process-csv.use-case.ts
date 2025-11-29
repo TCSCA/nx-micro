@@ -14,8 +14,8 @@ export class ProcessCsvUseCase {
         @Inject(LOGGER_TOKEN) private readonly logger: Logger,
     ) { }
 
-    async execute(): Promise<{ message: string; count: number }> {
-        const csvFilePath = path.resolve(process.cwd(), 'train.csv');
+    async execute(filePath: string): Promise<{ message: string; count: number }> {
+        const csvFilePath = filePath;
         this.logger.info(`Starting CSV processing from: ${csvFilePath}`);
 
         if (!fs.existsSync(csvFilePath)) {

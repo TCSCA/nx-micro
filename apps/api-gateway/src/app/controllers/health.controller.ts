@@ -1,8 +1,10 @@
 import { Controller, Get, Inject } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AppService } from '../app.service';
 import { LOGGER_TOKEN } from '@nx-microservices/observability';
 import { Logger } from 'winston';
 
+@ApiTags('Health')
 @Controller()
 export class HealthController {
     constructor(
@@ -13,34 +15,10 @@ export class HealthController {
     }
 
     @Get()
+    @ApiOperation({ summary: 'Get API Gateway info', description: 'Returns a hello message from the API Gateway' })
     getHello(): string {
         this.logger.info('GET / endpoint called on API Gateway');
         return this.appService.getHello();
     }
 
-    @Get('health')
-    getHealth() {
-        this.logger.info('GET /health endpoint called on API Gateway');
-        return this.appService.getHealth();
-    }
-
-    @Get('routes')
-    getRoutes() {
-        this.logger.info('GET /routes endpoint called - returning available routes');
-        return {
-            gateway: {
-                'GET /': 'Gateway hello message',
-                'GET /health': 'Gateway health check',
-                'GET /services/health': 'Health of all services',
-                'GET /services/:serviceName/health': 'Health of specific service',
-                'GET /services/:serviceName/hello': 'Call hello command on service',
-                'GET /services/:serviceName/error': 'Trigger error on service',
-                'POST /services/:serviceName/:command': 'Send custom command to service',
-                'GET /routes': 'Show available routes',
-            },
-            availableServices: ['service1', 'service2'],
-            availableCommands: ['hello', 'health', 'error'],
-            communication: 'TCP (Microservices)',
-        };
-    }
 }

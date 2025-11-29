@@ -30,6 +30,7 @@
     "@nestjs/core": "^11.0.0",
     "@nestjs/microservices": "^11.1.8",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.2.3",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/auto-instrumentations-node": "^0.67.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.208.0",
@@ -54,6 +55,7 @@
     "joi": "^18.0.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "swagger-ui-express": "^5.0.1",
     "winston": "^3.18.3",
     "winston-transport": "^4.9.0"
   },
@@ -74,6 +76,7 @@
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
     "@types/jest": "^30.0.0",
+    "@types/multer": "^2.0.0",
     "@types/node": "20.19.9",
     "dotenv": "^17.2.3",
     "dotenv-cli": "^11.0.0",

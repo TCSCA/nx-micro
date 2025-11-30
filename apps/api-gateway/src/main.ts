@@ -5,6 +5,9 @@
 
 import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
+import { json, urlencoded } from 'express';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { SwaggerModule } from '@nestjs/swagger';
@@ -36,8 +39,22 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
+
+
+// ...
+
   // Enable Helmet for security headers
   app.use(helmet());
+
+  // Enable Compression
+  app.use(compression());
+
+  // Enable HTTP Request Logging
+  app.use(morgan('combined'));
+
+  // Set Body Parser Limits
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ extended: true, limit: '10mb' }));
 
   // Enable CORS for API Gateway
   app.enableCors({

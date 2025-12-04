@@ -13,11 +13,11 @@ import { UserRepository } from '../domain/repositories/user.repository.interface
 import { PrismaUserRepository } from '../infrastructure/database/prisma-user.repository';
 
 // Use cases
-import { RegisterUserUseCase } from '../application/use-cases/register-user.use-case';
-import { LoginUserUseCase } from '../application/use-cases/login-user.use-case';
-import { ValidateTokenUseCase } from '../application/use-cases/validate-token.use-case';
-import { RefreshTokenUseCase } from '../application/use-cases/refresh-token.use-case';
-import { GetUserProfileUseCase } from '../application/use-cases/get-user-profile.use-case';
+import { RegisterUserUseCase } from './use-cases/register-user.use-case';
+import { LoginUserUseCase } from './use-cases/login-user.use-case';
+import { ValidateTokenUseCase } from './use-cases/validate-token.use-case';
+import { RefreshTokenUseCase } from './use-cases/refresh-token.use-case';
+import { GetUserProfileUseCase } from './use-cases/get-user-profile.use-case';
 
 // Infrastructure services
 import { BcryptService } from '../infrastructure/security/bcrypt.service';

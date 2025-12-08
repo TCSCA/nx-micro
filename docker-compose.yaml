@@ -1,4 +1,3 @@
-version: "3"
 x-common: &common
   networks:
     - signoz-net
@@ -187,6 +186,183 @@ services:
       - --dsn=tcp://clickhouse:9000
       - --up=
     restart: on-failure
+  
+  # ============================================
+  # PostgreSQL Databases
+  # ============================================
+  postgres-main:
+    <<: *common
+    image: postgres:16-alpine
+    container_name: nx-micro-postgres-main
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-root}
+      - POSTGRES_DB=test_micro
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-main-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d test_micro"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-netflix:
+    <<: *common
+    image: postgres:16-alpine
+    container_name: nx-micro-postgres-netflix
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-root}
+      - POSTGRES_DB=netflix_shows
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-netflix-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d netflix_shows"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Microservices
+  # ============================================
+  api-auth:
+    <<: *common
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: api-auth
+    image: nx-micro/api-auth:latest
+    container_name: nx-micro-api-auth
+    environment:
+      - NODE_ENV=production
+      - PORT_APIAUTH=${PORT_APIAUTH:-3001}
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-root}@postgres-main:5432/test_micro?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_EXPIRATION=${JWT_ACCESS_EXPIRATION:-15m}
+      - JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION:-7d}
+      - OTEL_SERVICE_NAME=api-auth
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://otel-collector:4318/v1/traces
+      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://otel-collector:4318/v1/metrics
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    ports:
+      - "3001:3001"
+    entrypoint: ["/usr/local/bin/entrypoint-api-auth.sh"]
+    command: ["node", "main.js"]
+    depends_on:
+      postgres-main:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+
+
+  netflix:
+    <<: *common
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: netflix
+    image: nx-micro/netflix:latest
+    container_name: nx-micro-netflix
+    environment:
+      - NODE_ENV=production
+      - PORT_NETFLIX=${PORT_NETFLIX:-3002}
+      - DATABASE_URL_NETFLIX=postgresql://postgres:${POSTGRES_PASSWORD:-root}@postgres-netflix:5432/netflix_shows?schema=public
+      - OTEL_SERVICE_NAME=netflix
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://otel-collector:4318/v1/traces
+      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://otel-collector:4318/v1/metrics
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    ports:
+      - "3002:3002"
+    entrypoint: ["/usr/local/bin/entrypoint-netflix.sh"]
+    command: ["node", "main.js"]
+    depends_on:
+      postgres-netflix:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+
+
+  csv-processor:
+    <<: *common
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: csv-processor
+    image: nx-micro/csv-processor:latest
+    container_name: nx-micro-csv-processor
+    environment:
+      - NODE_ENV=production
+      - PORT_CSV_PROCESSOR=${PORT_CSV_PROCESSOR:-3003}
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-root}@postgres-main:5432/test_micro?schema=public
+      - OTEL_SERVICE_NAME=csv-processor
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://otel-collector:4318/v1/traces
+      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://otel-collector:4318/v1/metrics
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    ports:
+      - "3003:3003"
+    entrypoint: ["/usr/local/bin/entrypoint-csv-processor.sh"]
+    command: ["node", "main.js"]
+    depends_on:
+      postgres-main:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+
+
+  api-gateway:
+    <<: *common
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: api-gateway
+    image: nx-micro/api-gateway:latest
+    container_name: nx-micro-api-gateway
+    environment:
+      - NODE_ENV=production
+      - PORT_GATEWAY=3000
+      - SERVICE_HOST=host.docker.internal
+      - PORT_APIAUTH=${PORT_APIAUTH:-3001}
+      - PORT_NETFLIX=${PORT_NETFLIX:-3002}
+      - PORT_CSV_PROCESSOR=${PORT_CSV_PROCESSOR:-3003}
+      - TCP_TIMEOUT=${TCP_TIMEOUT:-5000}
+      - JWT_SECRET=${JWT_SECRET}
+      - OTEL_SERVICE_NAME=api-gateway
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://otel-collector:4318/v1/traces
+      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://otel-collector:4318/v1/metrics
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    command: ["node", "main.js"]
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      api-auth:
+        condition: service_started
+      netflix:
+        condition: service_started
+      csv-processor:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/services/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
 networks:
   signoz-net:
     name: signoz-net
@@ -197,3 +373,8 @@ volumes:
     name: signoz-sqlite
   zookeeper-1:
     name: signoz-zookeeper-1
+  postgres-main-data:
+    name: nx-micro-postgres-main-data
+  postgres-netflix-data:
+    name: nx-micro-postgres-netflix-data
+

@@ -1,0 +1,82 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build outputs
+dist
+tmp
+out-tsc
+.nx
+
+# Test coverage
+coverage
+*.lcov
+
+# Environment files (will be handled by docker-compose)
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Test files
+*.spec.ts
+*.spec.js
+*.e2e-spec.ts
+**/__tests__
+**/__mocks__
+**/test
+apps/*-e2e
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+docker-compose*.yaml
+
+# CI/CD
+.gitlab-ci.yml
+.travis.yml
+.circleci
+
+# Logs
+logs
+*.log
+
+# Misc
+.prettierrc
+.prettierignore
+.editorconfig
+.eslintrc
+eslint.config.mjs
+jest.config.ts
+jest.preset.js
+tsconfig.spec.json
+
+# SigNoz config (handled separately)
+signoz-config
+otel-collector-config.yaml
+
+# Project files
+project-graph.json
+test.csv
+error.log
+AGENTS.md

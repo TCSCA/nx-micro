@@ -13,6 +13,8 @@ Arquitectura de microservicios de producción construida con Nx monorepo, NestJS
 - [Servicios Principales](#-servicios-principales)
 - [Librerías Compartidas](#-librerías-compartidas)
 - [Inicio Rápido](#-inicio-rápido)
+  - [Ejecutar con Docker](#-opción-1-ejecutar-con-docker-recomendado)
+  - [Desarrollo Local](#-opción-2-desarrollo-local-sin-docker)
 - [Configuración del Entorno](#️-configuración-del-entorno)
 - [Cómo Funciona la Comunicación](#-cómo-funciona-la-comunicación)
 - [Crear una Nueva API](#-crear-una-nueva-api)
@@ -21,6 +23,7 @@ Arquitectura de microservicios de producción construida con Nx monorepo, NestJS
 - [Testing](#-testing)
 - [Observabilidad](#-observabilidad)
 - [Documentación de APIs](#-documentación-de-apis)
+- [Docker Troubleshooting](docs/DOCKER_TROUBLESHOOTING.md)
 - [Mejores Prácticas y Estándares de Código](#-mejores-prácticas-y-estándares-de-código)
 - [Glosario de Conceptos Técnicos](#-glosario-de-conceptos-técnicos)
 - [Seguridad](#-seguridad)
@@ -235,12 +238,12 @@ La librería `shared-lib` proporciona utilidades reutilizables como `configureMi
 
 Asegúrate de tener instalado lo siguiente:
 
-- [Docker](https://www.docker.com/get-started/) y Docker Compose
-- [Node.js](https://nodejs.org/) (v20+) y [pnpm](https://pnpm.io/installation) (opcional, para desarrollo local)
+- [Docker](https://www.docker.com/get-started/) y Docker Compose (v2.0+)
+- [Node.js](https://nodejs.org/) (v20+) y [pnpm](https://pnpm.io/installation) (opcional, solo para desarrollo local)
 
-### Ejecutar con Docker (Recomendado)
+### 🐳 Opción 1: Ejecutar con Docker (Recomendado)
 
-La forma más rápida de iniciar toda la aplicación es usando Docker Compose:
+La forma más rápida de iniciar toda la aplicación es usando Docker Compose, que levantará automáticamente todos los servicios:
 
 1. **Clonar el repositorio**:
 
@@ -249,34 +252,139 @@ git clone <repository-url>
 cd nx-microservices
 ```
 
-2. **Instalar dependencias**:
+2. **Configurar variables de entorno**:
 
-```bash
-pnpm install
+El archivo `.env` ya incluye las configuraciones necesarias. Verifica que contenga:
+
+```env
+POSTGRES_PASSWORD=root
+JWT_SECRET=88eabccf91d88d6e6771e7fe3973769d1af9c80e672a190e9f0006fc7cad934047eed471c7b187407fbd283201695d9863eeb7808c42edf0c16c4716a2ff6e79
 ```
 
-3. **Configurar variables de entorno**:
-   Crea un archivo `.env` en la raíz del proyecto. Ver sección [Configuración del Entorno](#configuración-del-entorno).
+3. **Construir las imágenes Docker**:
 
-4. **Iniciar bases de datos y servicios de observabilidad**:
+```bash
+docker-compose build
+```
+
+Esto construirá las imágenes para todos los microservicios (puede tomar 5-10 minutos la primera vez).
+
+4. **Iniciar todos los servicios**:
 
 ```bash
 docker-compose up -d
 ```
 
+Esto iniciará:
+
+- 2 bases de datos PostgreSQL (test_micro y netflix_shows)
+- 4 microservicios (api-gateway, api-auth, netflix, csv-processor)
+- Stack de observabilidad completo (SigNoz, ClickHouse, OpenTelemetry Collector)
+
 5. **Aplicar migraciones de base de datos**:
 
 ```bash
-# Base de datos principal
-pnpm prisma:test_micro:migrate
-
-# Base de datos Netflix
-pnpm prisma:netflix:migrate
-# Seed de datos (Netflix)
-npx ts-node --project libs/prisma-netflix/tsconfig.seed.json libs/prisma-netflix/seed.ts
+# Esperar a que los servicios estén listos (30-60 segundos)
+docker-compose exec api-auth pnpm prisma:test_micro:deploy
+docker-compose exec netflix pnpm prisma:netflix:deploy
 ```
 
-6. **Iniciar todos los servicios**:
+6. **Seed de datos (opcional)**:
+
+Usando los scripts de utilidad incluidos:
+
+**Windows**:
+
+```bash
+.\docker\scripts\docker-utils.bat seed
+```
+
+**Linux/Mac**:
+
+```bash
+./docker/scripts/docker-utils.sh seed
+```
+
+7. **Verificar que todo está corriendo**:
+
+```bash
+docker-compose ps
+```
+
+Los servicios estarán disponibles en:
+
+- **API Gateway**: http://localhost:3000/api
+- **Swagger UI**: http://localhost:3000/api/docs
+- **SigNoz Dashboard**: http://localhost:8080
+
+#### Scripts de Utilidad Docker
+
+Para facilitar el trabajo con Docker, se incluyen scripts de utilidad:
+
+**Windows**:
+
+```bash
+.\docker\scripts\docker-utils.bat build    # Construir imágenes
+.\docker\scripts\docker-utils.bat up       # Iniciar servicios
+.\docker\scripts\docker-utils.bat down     # Detener servicios
+.\docker\scripts\docker-utils.bat logs     # Ver logs
+.\docker\scripts\docker-utils.bat migrate  # Ejecutar migraciones
+```
+
+**Linux/Mac**:
+
+```bash
+chmod +x ./docker/scripts/docker-utils.sh
+./docker/scripts/docker-utils.sh build    # Construir imágenes
+./docker/scripts/docker-utils.sh up       # Iniciar servicios
+./docker/scripts/docker-utils.sh down     # Detener servicios
+./docker/scripts/docker-utils.sh logs     # Ver logs
+./docker/scripts/docker-utils.sh migrate  # Ejecutar migraciones
+./docker/scripts/docker-utils.sh seed     # Seed de datos
+```
+
+### 💻 Opción 2: Desarrollo Local (Sin Docker)
+
+Para desarrollo local sin Docker:
+
+1. **Clonar e instalar dependencias**:
+
+```bash
+git clone <repository-url>
+cd nx-microservices
+pnpm install
+```
+
+2. **Iniciar solo las bases de datos con Docker**:
+
+```bash
+docker-compose up -d postgres-main postgres-netflix
+```
+
+3. **Configurar variables de entorno**:
+
+Asegúrate de que `.env` contenga las URLs de bases de datos para localhost:
+
+```env
+DATABASE_URL="postgresql://postgres:root@localhost:5432/test_micro?schema=public"
+DATABASE_URL_NETFLIX="postgresql://postgres:root@localhost:5433/netflix_shows?schema=public"
+SERVICE_HOST=127.0.0.1
+```
+
+4. **Aplicar migraciones**:
+
+```bash
+pnpm prisma:test_micro:migrate
+pnpm prisma:netflix:migrate
+```
+
+5. **Iniciar SigNoz (opcional)**:
+
+```bash
+docker-compose up -d zookeeper-1 clickhouse init-clickhouse schema-migrator-sync schema-migrator-async signoz otel-collector
+```
+
+6. **Iniciar todos los servicios en modo desarrollo**:
 
 ```bash
 pnpm start:all
